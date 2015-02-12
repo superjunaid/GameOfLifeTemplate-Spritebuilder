@@ -39,13 +39,16 @@ static const int GRID_COLUMNS = 10;
     //initialize Creatures
     for (int i = 0; i < GRID_ROWS; i++){
         _gridArray[i] = [NSMutableArray array];
+        x = 0;
         
         for (int j = 0;j < GRID_COLUMNS; j++) {
             Creature *creature = [[Creature alloc] initCreature];
-            creature.anchorPoint = ccp(0,0);
-            creature.position = ccp (x,y);
+            creature.anchorPoint = ccp(0, 0);
+            creature.position = ccp (x, y);
             [self addChild:creature];
+            
             _gridArray[i][j] = creature;
+            
             creature.isAlive = YES;
         
             x+=_cellHeight;
