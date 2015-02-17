@@ -57,6 +57,67 @@ static const int GRID_COLUMNS = 10;
         y+= _cellHeight;
     }
 }
+
+-(void)touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
+{
+    CGPoint touchLocation = [touch locationInNode:self];
+    
+    Creature *creature = [self creatureForTouchPosition:touchLocation];
+    
+    creature.isAlive = !creature.isAlive;
+}
+
+- (Creature *)creatureForTouchPosition:(CGPoint)touchPosition
+{
+    Creature *creature = nil;
+    
+    int column = touchPosition.x / _cellWidth;
+    int row = touchPosition.y / _cellHeight;
+    creature = _gridArray[row][column];
+    
+    return creature;
+}
+
+- (BOOL)isIndexValidForX:(int)x andY:(int)y
+{
+    BOOL isIndexValid = YES;
+    if(x < 0 || y < 0 || x >= GRID_ROWS || y >= GRID_COLUMNS)
+    {
+        isIndexValid = NO;
+    }
+    return isIndexValid;
+}
+
+-(void)evolveStep{
+    [self countNeighbors];
+    
+    [self updateCreatures];
+    
+    _generation++;
+}
+
+-(void)updateCreatures {
+    
+    _totalAlive = 0;
+    
+    for (int i = 0; i < [_gridArray count]; i++) {
+        for (int j = 0; j < [_gridArray count]; j++) {
+            Creature *currentCreature = _gridArray[i][j];
+            
+            if (currentCreature.livingNeighbors == 3) {
+                
+                currentCreature.isAlive = YES;
+            } else if ( (currentCreature.livingNeighbors <= 1) || (currentCreature.livingNeighbors >= 4))  {
+                currentCreature.isAlive = NO;
+            }
+            
+            if (currentCreature.isAlive) {
+                _totalAlive++;
+            }
+        }
+    }
+}
+
 -(void)countNeighbors
 {
     
@@ -90,75 +151,7 @@ static const int GRID_COLUMNS = 10;
     }
     
 }
-- (BOOL)isIndexValidForX:(int)x andY:(int)y
-{
-    BOOL isIndexValid = YES;
-    if(x < 0 || y < 0 || x >= GRID_ROWS || y >= GRID_COLUMNS)
-    {
-        isIndexValid = NO;
-    }
-    return isIndexValid;
-}
 
--(void)updateCreatures
-{
-    for (int i = 0; i < [_gridArray count]; i++) {
-        {
-            for (int j = 0; j < [_gridArray[i] count]; j++) {
-                {
-                    Creature *currentCreature = _gridArray[i][j];
-                    
-                    currentCreature.livingNeighbors = 0;
-                    
-                    for (int x = (i-1); x <= (i+1); x++)
-                    {
-                        for (int y = (j-1); y <= (j+1); y++) {
-                            BOOL isIndexValid;
-                            isIndexValid = [self isIndexValidForX:x andY:y];
-                            
-                            if (!((x == i) && (y == j)) && isIndexValid)
-                            {
-                                Creature *neighbor = _gridArray[x][y];
-                                if (neighbor.isAlive)
-                                {
-                                    currentCreature.livingNeighbors += 1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    
-}
 
--(void)evolveStep{
-    [self countNeighbors];
-    
-    [self updateCreatures];
-    
-    _generation++;
-}
 
--(void)touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
-{
-    CGPoint touchLocation = [touch locationInNode:self];
-    
-    Creature *creature = [self creatureForTouchPosition:touchLocation];
-    
-    creature.isAlive = !creature.isAlive;
-}
-
-- (Creature *)creatureForTouchPosition:(CGPoint)touchPosition
-{
-    Creature *creature = nil;
-    
-    int column = touchPosition.x / _cellWidth;
-    int row = touchPosition.y / _cellHeight;
-    creature = _gridArray[row][column];
-    
-    return creature;
-}
 @end
